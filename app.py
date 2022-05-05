@@ -63,10 +63,10 @@ cardclass ={
     }
 defCountries = ['France','Vietnam','Germany','United Kingdom','Italy','Japan','Canada','United States']
 metrics = {
-    'new_cases_smoothed':'Confirmed cases', 
-    'new_deaths_smoothed':'Confirmed deaths', 
-    'people_vaccinated': 'People vaccinated', 
-    'people_fully_vaccinated': 'People fully vaccinated' 
+    'new_cases_smoothed':'Ca nhiễm', 
+    'new_deaths_smoothed':'Ca tử vong', 
+    'people_vaccinated': 'Số người được tiêm', 
+    'people_fully_vaccinated': 'Số người được tiêm đủ' 
     }
 #############################################
 #Initialize empty array of given length
@@ -102,6 +102,7 @@ df['year'] = pd.DatetimeIndex(df['date']).year
 
 dfc = df.copy(deep=True)
 df.index = pd.to_datetime(df['date'])
+df.sort_index(ascending = False, inplace=True)
 dmax = date.today() + timedelta(days=-1)
 diff = date.fromisoformat(dmax.strftime('%Y-%m-%d')) - date.fromisoformat('2020-01-22')
 
@@ -310,10 +311,10 @@ crictrl = html.Div(className='div-user-controls',
                      children=[
                          html.H6('Plotly.Dash',style={'color': colors['text.light'], 'font-family': fontnames['l']}, className="mt-5"),
                          html.H5(title[1]),
-                         html.Div(children=[html.Sup('Statistic data by year(s)'), yrslider], className="mt-3"),
+                         html.Div(children=[html.Sup('Năm bùng phát dịch bệnh'), yrslider], className="mt-3"),
                          html.Div(className='div-for-dropdown mt-3',
                                   children=[
-                                      html.Sup('Select date'),
+                                      html.Sup('Chọn ngày'),
                                       dcc.Dropdown(id='dateselector', multi=False,
                                                    value=df['date'].unique().max(),
                                                    style={'backgroundColor': colors['drop.bkg'],
@@ -325,7 +326,7 @@ crictrl = html.Div(className='div-user-controls',
                                   ),                         
                          html.Div(className='div-for-dropdown mt-3',
                                   children=[
-                                      html.Sup('Select location'),
+                                      html.Sup('Chọn quốc gia'),
                                       dcc.Dropdown(id='locselector',
                                                    options=get_options(df['location'].unique()), multi=True,
                                                    value=defCountries,
@@ -495,7 +496,7 @@ def update_theme(toggle, selected_year, selected_date, selected_loc, xaxis_name,
     yrmax = int(selected_year[1])
 
     template = template_theme1 if toggle else template_theme2
-    s='Light screen' if toggle else 'Dark screen'
+    s='Nền sáng' if toggle else 'Nền tối'
     
     if selected_loc==['all_values']:
         dff = df[(df.year >= yrmin) & (df.year <= yrmax)]
