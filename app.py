@@ -396,34 +396,9 @@ app.layout = dbc.Container(children=[
         [
         dbc.Col(width=1),
         dbc.Col(crictrl, width=2, className="shadow-sm rounded m-1"),
-        dbc.Col(cgraph['line'], width=8, className="shadow-sm rounded m-1"), 
+        dbc.Col([cgraph['line'],cgraph['scatter'],ggraph], width=8, className="shadow-sm rounded m-1"), 
         dbc.Col(width=1)
         ],className="m-1"
-        ),
-    dbc.Row(
-        [
-        dbc.Col(width=1),
-        dbc.Col(width=2, className="shadow-sm rounded m-1"),
-        dbc.Col(width=8, className="shadow-sm rounded m-1"),
-        #dbc.Col(cgraph['map'], width=8, className="shadow-sm rounded m-1"), 
-        dbc.Col(width=1)
-        ],className="m-1"
-        ),
-    dbc.Row(
-        [
-        dbc.Col(width=1),
-        dbc.Col(width=2),
-        dbc.Col(cgraph['scatter'], width=8, className="shadow-sm rounded m-1"), 
-        dbc.Col(width=1)
-        ]
-        ),
-    dbc.Row(
-        [
-        dbc.Col(width=1),
-        dbc.Col(width=2),
-        dbc.Col(ggraph, width=8, className="shadow-sm rounded m-1"),
-        dbc.Col(width=1)
-        ]
         ),
     dbc.Row(
         [
