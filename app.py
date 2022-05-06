@@ -53,8 +53,8 @@ fnote = ['7-day rolling average. Due to limited testing, the number of confirmed
          '(Dữ liệu về các ca nhiễm được cập nhật thường xuyên từ OWID)',
          'Dữ liệu sẽ hiển thị giá trị 0 khi số liệu chưa được cập nhật.']
 
-cardtitle =['Ca nhiễm tích lũy', 'Ca nhiễm theo ngày', 'Người tiêm vaccine/ngày', 'Ca tử vong tích lũy']
-cardcontent =['Mức tăng giảm: ', 'Tỷ lệ/1M dân: ', 'Số người tiêm đủ liều: ', 'Tỷ lệ/1M dân: ']
+cardtitle =['Ca nhiễm tích lũy', 'Ca nhiễm/ngày', 'Liều vaccine/ngày', 'Ca tử vong tích lũy']
+cardcontent =['Mức tăng giảm: ', 'Tỷ lệ/1M dân: ', 'Tiêm đủ liều: ', 'Tỷ lệ/1M dân: ']
 cardclass ={
     'h':'bg-primary bg-gradient fw-light text-white', #bg-info bg-primary bg-secondary
     'b':'card-title fw-bold',
