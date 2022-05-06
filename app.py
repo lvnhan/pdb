@@ -53,8 +53,8 @@ fnote = ['7-day rolling average. Due to limited testing, the number of confirmed
          '(Dữ liệu về các ca nhiễm được cập nhật thường xuyên từ OWID)',
          'Dữ liệu sẽ hiển thị giá trị 0 khi số liệu chưa được cập nhật.']
 
-cardtitle =['Số ca nhiễm tích lũy', 'Số ca nhiễm theo ngày', 'Số người tiêm vaccine', 'Số ca tử vong']
-cardcontent =['Mức tăng giảm: ', 'Tỷ lệ nhiễm/1M dân: ', 'Số người tiêm đủ liều: ', 'Tỷ lệ tử vong/1M dân: ']
+cardtitle =['Ca nhiễm tích lũy', 'Ca nhiễm theo ngày', 'Người tiêm vaccine/ngày', 'Ca tử vong tích lũy']
+cardcontent =['Mức tăng giảm: ', 'Tỷ lệ/1M dân: ', 'Số người tiêm đủ liều: ', 'Tỷ lệ/1M dân: ']
 cardclass ={
     'h':'bg-primary bg-gradient fw-light text-white', #bg-info bg-primary bg-secondary
     'b':'card-title fw-bold',
@@ -148,7 +148,7 @@ def update_cardsinfo(adf, max_dt, bef_dt):
     tcases_percent = deviant/tcases_p 
 
     card_rstl[0][0] = "{:,.0f}".format(sd[0])
-    card_rstl[0][1]  = [cardcontent[0],
+    card_rstl[0][1]  = [#cardcontent[0],
                          (lambda x: html.Label('\u25B2 ', style={'color': '#FF0000'}) if x>0 else html.Label("\u25BC ", style={'color': '#228B22'}))(deviant),
                          ("{:,.0f}".format(deviant)+" ({:.2%})").format(tcases_percent)
                          ]
@@ -220,8 +220,8 @@ card = {
                 dbc.CardHeader(id="c0", children=[cardtitle[0]], className=cardclass['h']),
                 dbc.CardBody([html.H3(className=cardclass['b'], style={'color':'#FF0000'}, id="c0b"),
                               html.Sup(id="c0s", children=[], className=cardclass['s'])
-                              ])
-                ],className=cardclass['g']
+                              ]) 
+                ],className=cardclass['g'], style={"height": 150}
                 ),      
         '1':
             dbc.Card([
@@ -229,7 +229,7 @@ card = {
                 dbc.CardBody([html.H3(className=cardclass['b'], style={'color':'#FF8C00'}, id="c1b"), #orangered:#FF4500 darkorange: #FF8C00
                               html.Sup(id="c1s", children=[], className=cardclass['s'])
                               ])
-                ],className=cardclass['g']
+                ],className=cardclass['g'], style={"height": 150}
                 ),
         '2':
             dbc.Card([
@@ -237,7 +237,7 @@ card = {
                 dbc.CardBody([html.H3(className=cardclass['b'], style={'color':'#409602'}, id="c2b"),
                               html.Sup(id="c2s", children =[], className=cardclass['s'])
                               ])
-                ],className=cardclass['g']
+                ],className=cardclass['g'], style={"height": 150}
                 ),
         '3':
             dbc.Card([
@@ -245,7 +245,7 @@ card = {
                 dbc.CardBody([html.H3(className=cardclass['b'], id="c3b"),
                               html.Sup(id="c3s", children=[], className=cardclass['s'])
                               ])
-                ],className=cardclass['g']
+                ],className=cardclass['g'], style={"height": 150}
                 ),
         }
 cards = html.Div([
