@@ -68,6 +68,13 @@ metrics = {
     'people_vaccinated': 'Số người được tiêm', 
     'people_fully_vaccinated': 'Số người được tiêm đủ' 
     }
+color_scale = {
+    'new_cases_smoothed':'redor', 
+    'new_deaths_smoothed':'greys', 
+    'people_vaccinated': 'blues', 
+    'people_fully_vaccinated': 'greens' 
+    }
+
 #############################################
 #Initialize empty array of given length
 #############################################
@@ -92,11 +99,19 @@ app.title = "Plotly.Dash Coronavirus Pandemic"
 #############################################
 # Loading & preprocessing data
 #############################################
-df = pd.read_csv('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv', index_col=0, parse_dates=True)
+df = pd.read_csv('https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv', parse_dates=True)
 
 df.dropna(subset = ['continent'], inplace = True) 
 # Replace NaN Values with Zeros in Pandas DataFrame
 df = df.replace(np.nan, 0)
+
+# Copy and select only the columns to need for map
+mapdf = df.copy(deep=True)
+# change 'iso_code' column to 'iso_alpha'
+mapdf.rename(columns = {'iso_code':'iso_alpha'}, inplace = True)
+mapdf = mapdf[['iso_alpha', 'continent','location','date','total_cases','new_cases', 'total_deaths', 
+               'new_cases_smoothed','new_deaths_smoothed',
+               'people_vaccinated', 'people_fully_vaccinated']]
 # Extract and add more the year from date column
 df['year'] = pd.DatetimeIndex(df['date']).year
 
@@ -396,7 +411,7 @@ app.layout = dbc.Container(children=[
         [
         dbc.Col(width=1),
         dbc.Col(crictrl, width=2, className="shadow-sm rounded m-1"),
-        dbc.Col([cgraph['line'],cgraph['scatter'],ggraph], width=8, className="shadow-sm rounded m-1"), 
+        dbc.Col([cgraph['line'], cgraph['map'], cgraph['scatter'],ggraph], width=8, className="shadow-sm rounded m-1"), 
         dbc.Col(width=1)
         ],className="m-1"
         ),
@@ -457,7 +472,7 @@ def set_date_range(selected_year):
     Output("cgraph_line", "figure"),
     Output("cgraph_scatter", "figure"),
     Output("ggraph", "figure"),
-    #Output("cgraph_map", "figure"),
+    Output("cgraph_map", "figure"),
     Input(ThemeSwitchAIO.ids.switch("theme"), "value"),
     Input('year-slider', 'value'),
     Input('dateselector', 'value'),
@@ -530,7 +545,7 @@ def update_theme(toggle, selected_year, selected_date, selected_loc, xaxis_name,
         cfigline.update_layout(hovermode="x unified", hoverlabel=dict(bgcolor='rgba(0,0,0,0.5)'),
                                showlegend=False) 
                                 
-#Scatter with play x-axis
+        #Scatter with play x-axis
     cfigscatter = px.scatter(dffmc, x="total_cases", y="total_deaths",
                               #animation_frame="date", animation_group="location",
                               size="population",
@@ -573,29 +588,30 @@ def update_theme(toggle, selected_year, selected_date, selected_loc, xaxis_name,
     
     ####################################################
     #map
-#    mfig = go.Figure(go.Scattergeo())
-#    mfig.update_geos(
-#        resolution=50,
-#        visible=False,
-#        showcountries=True, countrycolor="LightGrey", # màu sắc giữa các quốc gia
-#        showsubunits=True, subunitcolor="Blue",
-        #2
-        #projection_type="orthographic"
-        #1
-        #showcoastlines=True, coastlinecolor="DarkBlue", # màu sắc bờ biển
-        #showland=True, landcolor="LightGreen",
-        #showocean=True, oceancolor="LightBlue",
-        #showlakes=True, lakecolor="Blue",
-        #showrivers=True, rivercolor="Blue"
-        #template=template,
-#    )
-    #map scope: ['africa', 'asia', 'europe', 'north america', 'south america', 'usa', 'world']
-#    mfig.update_geos(scope="asia")
-    #Graticules (Latitude and Longitude Grid Lines) | hiển thị đường lưới kinh độ và vĩ độ.
-    #mfig.update_geos(lataxis_showgrid=True, lonaxis_showgrid=True)
-#    mfig.update_layout(height=500, margin={"r":0,"t":0,"l":0,"b":0})
-#    mfig.update_layout(template=template)  
-    return s, cfigline, cfigscatter, gfig#, mfig
+    mmapdf = mapdf[mapdf['date'] == dmax.strftime('%Y-%m-%d')]
+    mfig = px.choropleth(mmapdf, locations="iso_alpha",
+                    color=mmapdf[xaxis_name], 
+                    hover_name="location", 
+                    #color_continuous_scale=px.colors.sequential.Plasma
+                    color_continuous_scale=color_scale[xaxis_name],# "redor",#"orrd",#"reds"
+                    #"blues", "brwnyl","burgyl", "hot" #"rdylbu_r",# "rdpu_r","hot_r"
+                    #hover_data=['covtrack'],
+                    template=template,
+                    labels={
+                        'iso_alpha': 'iso',
+                        'total_cases':'Ca nhiễm TL',
+                        'new_cases': 'Ca nhiễm mới',
+                        'total_deaths': 'Ca tử vong TL',
+                        "new_cases_smoothed": "Ca nhiễm BQ/tuần",
+                        "new_deaths_smoothed": "Ca tử vong BQ/tuần",
+                        'people_vaccinated': 'Liều vacc',
+                        'people_fully_vaccinated': 'Số người tiêm đủ vacc'
+                        }
+                    )
+    mfig.update_layout(title_text = "Bảng đồ cấp độ theo chỉ số - " + metrics[xaxis_name] + "<br><sup>Cập nhật đến ngày: " + dmax.strftime('%d-%m-%Y') +"</sup>")
+    mfig.update_geos(showcountries=True)
+    
+    return s, cfigline, cfigscatter, gfig, mfig
 
 if __name__ == "__main__":
     app.run_server(debug=True)
