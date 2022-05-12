@@ -592,10 +592,7 @@ def update_theme(toggle, selected_year, selected_date, selected_loc, xaxis_name,
     mfig = px.choropleth(mmapdf, locations="iso_alpha",
                     color=mmapdf[xaxis_name], 
                     hover_name="location", 
-                    #color_continuous_scale=px.colors.sequential.Plasma
-                    color_continuous_scale=color_scale[xaxis_name],# "redor",#"orrd",#"reds"
-                    #"blues", "brwnyl","burgyl", "hot" #"rdylbu_r",# "rdpu_r","hot_r"
-                    #hover_data=['covtrack'],
+                    color_continuous_scale=color_scale[xaxis_name],
                     template=template,
                     labels={
                         'iso_alpha': 'iso',
@@ -610,7 +607,8 @@ def update_theme(toggle, selected_year, selected_date, selected_loc, xaxis_name,
                     )
     mfig.update_layout(title_text = "Bảng đồ cấp độ theo chỉ số - " + metrics[xaxis_name] + "<br><sup>Cập nhật đến ngày: " + dmax.strftime('%d-%m-%Y') +"</sup>")
     mfig.update_geos(showcountries=True)
-    
+    mfig.update_layout(coloraxis_showscale=False)
+
     return s, cfigline, cfigscatter, gfig, mfig
 
 if __name__ == "__main__":
