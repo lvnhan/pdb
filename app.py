@@ -24,7 +24,8 @@ colors = {
     'pg.bkground': 'rgba(0, 0, 0, 0)',
     'drop.bkg': '#1E1E1E',
     'text.light': '#B6B6B6',
-    'text.note': '#989898'
+    'text.note': '#989898',
+    'text.dark': '#000000'
 }
 fontnames = {
     'u': 'Segoe UI',
@@ -513,19 +514,13 @@ def update_theme(toggle, selected_year, selected_date, selected_loc, xaxis_name,
                   "people_vaccinated":"Số người đã tiêm ít nhất một liều vaccine",
                   "people_fully_vaccinated":"Số người tiêm đủ liều",
                   "location": "Quốc gia"
-                  }, #type=log,
-                  #log_y=True,
+                  },
                   template=template,
-                  #animation_frame="date", animation_group="location",
                   title= LTitleChart + "<br><sup>Cập nhật đến ngày: " + dmax.strftime('%d-%m-%Y') +"</sup>"
                   )
     #show and hide legend on chart
     cfigline.update_layout(showlegend=False)
-    # legend position
-    #cfigline.update_layout(legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01))
-    # horizontal legend
-    #cfigline.update_layout(legend=dict(orientation="h",yanchor="bottom",y=1.02,xanchor="right",x=1))
-    
+   
     #switching chart type by toggle button
     if(selected_chart_type==False):
         cfigline.update_yaxes(type="linear")
@@ -533,14 +528,13 @@ def update_theme(toggle, selected_year, selected_date, selected_loc, xaxis_name,
         cfigline.update_yaxes(type="log")
 
     #Modify hover label    
-    ##cfigline.update_traces(mode="markers+lines", hovertemplate=None)
-    cfigline.update_traces(hovertemplate="%{y} ca")#"%{x}<br>Ca nhiễm: %{y}<br>"  #%{ <variable>} 
-    cfigline.update_xaxes(spikecolor="grey", spikedash="dot" ) #"solid", "dot", "dash", "longdash", "dashdot", or "longdashdot"
-    #cfigline.update_traces(marker_line_color('rgb(0, 2, 1)'))        
+    cfigline.update_traces(hovertemplate="%{y} ca")
+    cfigline.update_xaxes(spikecolor="grey", spikedash="dot" )
+      
     # styling hover
     if toggle:
         cfigline.update_layout(hovermode="x unified", hoverlabel=dict(bgcolor='rgba(255,255,255,0.75)'),
-                               showlegend=False)#'x', 'x unified', 'closest' (default) 
+                               showlegend=False)
     else:
         cfigline.update_layout(hovermode="x unified", hoverlabel=dict(bgcolor='rgba(0,0,0,0.5)'),
                                showlegend=False) 
@@ -568,7 +562,7 @@ def update_theme(toggle, selected_year, selected_date, selected_loc, xaxis_name,
     gfig = px.scatter(
         df[df['date'] == dmax.strftime('%Y-%m-%d')],
         x="gdp_per_capita", #Gross domestic product at purchasing power parity (constant 2011 international dollars), most recent year available
-        y="life_expectancy", # Life expectancy at birth in 2019
+        y="life_expectancy", 
         size="population",
         color="continent",
         log_x=True,
@@ -594,6 +588,7 @@ def update_theme(toggle, selected_year, selected_date, selected_loc, xaxis_name,
                     hover_name="location", 
                     color_continuous_scale=color_scale[xaxis_name],
                     template=template,
+                    custom_data=["iso_alpha", "location", "total_cases", "total_deaths", "new_cases"],
                     labels={
                         'iso_alpha': 'iso',
                         'total_cases':'Ca nhiễm TL',
@@ -606,9 +601,27 @@ def update_theme(toggle, selected_year, selected_date, selected_loc, xaxis_name,
                         }
                     )
     mfig.update_layout(title_text = "Bảng đồ cấp độ theo chỉ số - " + metrics[xaxis_name] + "<br><sup>Cập nhật đến ngày: " + dmax.strftime('%d-%m-%Y') +"</sup>")
-    mfig.update_geos(showcountries=True)
     mfig.update_layout(coloraxis_showscale=False)
-
+    mfig.update_geos(showcountries=True)
+    
+    #Set hover template based on custom_data.
+    hovertemp = "<b>"+ dmax.strftime('%d-%m-%Y') +"</b> - "
+    hovertemp += "%{customdata[0]}:%{customdata[1]}<br>"
+    hovertemp += "Ca nhiễm tích lũy: %{customdata[2]:,.0f}<br>"
+    hovertemp += "Ca tử vong tích lũy: %{customdata[3]:,.0f}<br>"
+    hovertemp += "Ca nhiễm mới: %{customdata[4]:,.0f}"
+    mfig.update_traces(hovertemplate=hovertemp)
+    if toggle:
+        mfig.update_traces(hoverlabel_bgcolor='rgba(255,255,255,0.5)', hoverlabel_bordercolor='LightGrey',
+                           hoverlabel_font_color='#000000',
+                           hoverlabel_font_family=fontnames['u']
+                           )
+    else:
+        mfig.update_traces(hoverlabel_bgcolor='rgba(0,0,0,0.5)', hoverlabel_bordercolor='LightGrey',
+                           hoverlabel_font_color='#FFFFFF',
+                           hoverlabel_font_family=fontnames['u']
+                           )
+            
     return s, cfigline, cfigscatter, gfig, mfig
 
 if __name__ == "__main__":
