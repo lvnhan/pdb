@@ -113,6 +113,19 @@ mapdf.rename(columns = {'iso_code':'iso_alpha'}, inplace = True)
 mapdf = mapdf[['iso_alpha', 'continent','location','date','total_cases','new_cases', 'total_deaths', 
                'new_cases_smoothed','new_deaths_smoothed',
                'people_vaccinated', 'people_fully_vaccinated']]
+#copy datafraem to map data for grouping
+gmapdf = mapdf.copy(deep=True)
+gmapdf['year'] = pd.DatetimeIndex(gmapdf['date']).year
+gmapdf['weeknum'] = pd.to_datetime(gmapdf['date']).dt.strftime('%Y-W%W')
+gdf=pd.DataFrame(gmapdf.groupby(['iso_alpha', 'location','year','weeknum']).agg(
+    #pop=pd.NamedAgg(column='population',aggfunc=max),
+    #life_exp=pd.NamedAgg(column='life_expectancy',aggfunc=max),
+    cases_total=pd.NamedAgg(column='total_cases',aggfunc=max),
+    newcases_perweek=pd.NamedAgg(column='new_cases',aggfunc=lambda x:round(sum(x)/7, 3) ),
+    #newdeaths_total=pd.NamedAgg(column='new_deaths',aggfunc=sum)
+    ).reset_index())
+gdf = gdf.sort_values(['year', 'weeknum', 'iso_alpha'], ascending = [True, True, True])
+
 # Extract and add more the year from date column
 df['year'] = pd.DatetimeIndex(df['date']).year
 
@@ -464,6 +477,7 @@ def set_date_range(selected_year):
     yrmin = int(selected_year[0])
     yrmax = int(selected_year[1])
     dff = df[(df.year >= yrmin) & (df.year <= yrmax)]
+    gdff = gdf[(gdf.year >= yrmin) & (gdf.year <= yrmax)]
 
     dmax = dff['date'].unique().max()
     return get_days(dff['date'].unique()), dmax
@@ -492,9 +506,11 @@ def update_theme(toggle, selected_year, selected_date, selected_loc, xaxis_name,
     if selected_loc==['all_values']:
         dff = df[(df.year >= yrmin) & (df.year <= yrmax)]
         dffmc = dfmc[(dfmc.year >= yrmin) & (dfmc.year <= yrmax)]
+        gdff = gdf[(gdf.year >= yrmin) & (gdf.year <= yrmax)]
     else:
         dff = df[(df.year >= yrmin) & (df.year <= yrmax)]
         dffmc = dfmc[(dfmc.year >= yrmin) & (dfmc.year <= yrmax)]
+        gdff = gdf[(gdf.year >= yrmin) & (gdf.year <= yrmax)]
         
         dff = dff[dff['location'].isin(selected_loc)]
         #dffmc = dffmc[dffmc['location'].isin(selected_loc)]
@@ -582,25 +598,39 @@ def update_theme(toggle, selected_year, selected_date, selected_loc, xaxis_name,
     
     ####################################################
     #map
-    mmapdf = mapdf[mapdf['date'] == dmax.strftime('%Y-%m-%d')]
-    mfig = px.choropleth(mmapdf, locations="iso_alpha",
-                    color=mmapdf[xaxis_name], 
-                    hover_name="location", 
-                    color_continuous_scale=color_scale[xaxis_name],
-                    template=template,
-                    custom_data=["iso_alpha", "location", "total_cases", "total_deaths", "new_cases"],
-                    labels={
-                        'iso_alpha': 'iso',
-                        'total_cases':'Ca nhiễm TL',
-                        'new_cases': 'Ca nhiễm mới',
-                        'total_deaths': 'Ca tử vong TL',
-                        "new_cases_smoothed": "Ca nhiễm BQ/tuần",
-                        "new_deaths_smoothed": "Ca tử vong BQ/tuần",
-                        'people_vaccinated': 'Liều vacc',
-                        'people_fully_vaccinated': 'Số người tiêm đủ vacc'
-                        }
-                    )
-    mfig.update_layout(title_text = "Bảng đồ cấp độ theo chỉ số - " + metrics[xaxis_name] + "<br><sup>Cập nhật đến ngày: " + dmax.strftime('%d-%m-%Y') +"</sup>")
+    if xaxis_name=='new_cases_smoothed':
+        mfig = px.choropleth(gdff, locations="iso_alpha",
+                        color="newcases_perweek", 
+                        hover_name="location", 
+                        color_continuous_scale="redor",
+                        animation_frame="weeknum", animation_group="location",
+                        template=template,
+                        width=800, height=600,
+                        labels={'weeknum':'Năm - tuần thứ ',
+                            'iso_alpha': 'iso'}
+                        )
+        mfig.update_layout(title_text = "Bảng đồ cấp độ theo chỉ số - " + metrics[xaxis_name] + "<br><sup>Dữ liệu bình quân trong tuần, cập nhật đến ngày " + dmax.strftime('%d-%m-%Y') +"</sup>")
+    else:
+        mmapdf = mapdf[mapdf['date'] == dmax.strftime('%Y-%m-%d')]
+        mfig = px.choropleth(mmapdf, locations="iso_alpha",
+                        color=mmapdf[xaxis_name], 
+                        hover_name="location", 
+                        color_continuous_scale=color_scale[xaxis_name],
+                        template=template,
+                        custom_data=["iso_alpha", "location", "total_cases", "total_deaths", "new_cases"],
+                        labels={
+                            'iso_alpha': 'iso',
+                            'total_cases':'Ca nhiễm TL',
+                            'new_cases': 'Ca nhiễm mới',
+                            'total_deaths': 'Ca tử vong TL',
+                            "new_cases_smoothed": "Ca nhiễm BQ/tuần",
+                            "new_deaths_smoothed": "Ca tử vong BQ/tuần",
+                            'people_vaccinated': 'Liều vacc',
+                            'people_fully_vaccinated': 'Số người tiêm đủ vacc'
+                            }
+                        )
+        mfig.update_layout(title_text = "Bảng đồ cấp độ theo chỉ số - " + metrics[xaxis_name] + "<br><sup>Cập nhật đến ngày: " + dmax.strftime('%d-%m-%Y') +"</sup>")
+   
     mfig.update_layout(coloraxis_showscale=False)
     mfig.update_geos(showcountries=True)
     
