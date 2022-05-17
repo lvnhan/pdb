@@ -605,10 +605,15 @@ def update_theme(toggle, selected_year, selected_date, selected_loc, xaxis_name,
                         color_continuous_scale="redor",
                         animation_frame="weeknum", animation_group="location",
                         template=template,
-                        width=800, height=600,
+                        #width=800, height=600,
                         labels={'weeknum':'Năm - tuần thứ ',
+                            'newcases_perweek': 'Ca nhiễm mới trong tuần ',   
                             'iso_alpha': 'iso'}
                         )
+        mfig.update_layout(autosize=True, 
+                           margin=dict(t=50, b=0, l=0, r=0)
+                           )
+        mfig.update_geos(fitbounds="locations", visible=False)   
         mfig.update_layout(title_text = "Bảng đồ cấp độ theo chỉ số - " + metrics[xaxis_name] + "<br><sup>Dữ liệu bình quân trong tuần, cập nhật đến ngày " + dmax.strftime('%d-%m-%Y') +"</sup>")
     else:
         mmapdf = mapdf[mapdf['date'] == dmax.strftime('%Y-%m-%d')]
