@@ -425,7 +425,7 @@ app.layout = dbc.Container(children=[
         [
         dbc.Col(width=1),
         dbc.Col(crictrl, width=2, className="shadow-sm rounded m-1"),
-        dbc.Col([cgraph['line'], cgraph['map'], cgraph['scatter'],ggraph], width=8, className="shadow-sm rounded m-1"), 
+        dbc.Col([cgraph['line'], cgraph['map'], cgraph['scatter'],ggraph], width=8, className="shadow-sm rounded m-0"), 
         dbc.Col(width=1)
         ],className="m-1"
         ),
@@ -477,7 +477,7 @@ def set_date_range(selected_year):
     yrmin = int(selected_year[0])
     yrmax = int(selected_year[1])
     dff = df[(df.year >= yrmin) & (df.year <= yrmax)]
-    gdff = gdf[(gdf.year >= yrmin) & (gdf.year <= yrmax)]
+    #gdff = gdf[(gdf.year >= yrmin) & (gdf.year <= yrmax)]
 
     dmax = dff['date'].unique().max()
     return get_days(dff['date'].unique()), dmax
@@ -605,16 +605,22 @@ def update_theme(toggle, selected_year, selected_date, selected_loc, xaxis_name,
                         color_continuous_scale="redor",
                         animation_frame="weeknum", animation_group="location",
                         template=template,
-                        #width=800, height=600,
-                        labels={'weeknum':'Năm - tuần thứ ',
-                            'newcases_perweek': 'Ca nhiễm mới trong tuần ',   
-                            'iso_alpha': 'iso'}
+                        #width=500, #height=600,
+                        custom_data=["iso_alpha", "location", "cases_total", "newcases_perweek"],
+                        labels={
+                            'weeknum':'Năm - tuần thứ ',
+                            'newcases_perweek': 'Ca nhiễm mới trong tuần ', 
+                            'iso_alpha': 'iso',
+                            }
                         )
         mfig.update_layout(autosize=True, 
-                           margin=dict(t=50, b=0, l=0, r=0)
+                           margin=dict(t=50, b=5, l=5, r=5)
                            )
         mfig.update_geos(fitbounds="locations", visible=False)   
         mfig.update_layout(title_text = "Bảng đồ cấp độ theo chỉ số - " + metrics[xaxis_name] + "<br><sup>Dữ liệu bình quân trong tuần, cập nhật đến ngày " + dmax.strftime('%d-%m-%Y') +"</sup>")
+        hovertemp = "%{customdata[0]}:%{customdata[1]}<br>"
+        hovertemp += "Ca nhiễm tích lũy: %{customdata[2]:,.0f}<br>"
+        hovertemp += "Ca nhiễm bình quân/tuần: %{customdata[3]:,.0f}<br>"
     else:
         mmapdf = mapdf[mapdf['date'] == dmax.strftime('%Y-%m-%d')]
         mfig = px.choropleth(mmapdf, locations="iso_alpha",
@@ -635,17 +641,17 @@ def update_theme(toggle, selected_year, selected_date, selected_loc, xaxis_name,
                             }
                         )
         mfig.update_layout(title_text = "Bảng đồ cấp độ theo chỉ số - " + metrics[xaxis_name] + "<br><sup>Cập nhật đến ngày: " + dmax.strftime('%d-%m-%Y') +"</sup>")
-   
+        #Set hover template based on custom_data.
+        hovertemp = "<b>"+ dmax.strftime('%d-%m-%Y') +"</b> - "
+        hovertemp += "%{customdata[0]}:%{customdata[1]}<br>"
+        hovertemp += "Ca nhiễm tích lũy: %{customdata[2]:,.0f}<br>"
+        hovertemp += "Ca tử vong tích lũy: %{customdata[3]:,.0f}<br>"
+        hovertemp += "Ca nhiễm mới: %{customdata[4]:,.0f}"
+    
+    mfig.update_traces(hovertemplate=hovertemp)   
     mfig.update_layout(coloraxis_showscale=False)
     mfig.update_geos(showcountries=True)
     
-    #Set hover template based on custom_data.
-    hovertemp = "<b>"+ dmax.strftime('%d-%m-%Y') +"</b> - "
-    hovertemp += "%{customdata[0]}:%{customdata[1]}<br>"
-    hovertemp += "Ca nhiễm tích lũy: %{customdata[2]:,.0f}<br>"
-    hovertemp += "Ca tử vong tích lũy: %{customdata[3]:,.0f}<br>"
-    hovertemp += "Ca nhiễm mới: %{customdata[4]:,.0f}"
-    mfig.update_traces(hovertemplate=hovertemp)
     if toggle:
         mfig.update_traces(hoverlabel_bgcolor='rgba(255,255,255,0.5)', hoverlabel_bordercolor='LightGrey',
                            hoverlabel_font_color='#000000',
