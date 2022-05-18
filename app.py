@@ -618,7 +618,7 @@ def update_theme(toggle, selected_year, selected_date, selected_loc, xaxis_name,
                            )
         mfig.update_geos(fitbounds="locations", visible=False)   
         mfig.update_layout(title_text = "Bảng đồ cấp độ theo chỉ số - " + metrics[xaxis_name] + "<br><sup>Dữ liệu bình quân trong tuần, cập nhật đến ngày " + dmax.strftime('%d-%m-%Y') +"</sup>")
-        hovertemp = "%{customdata[0]}:%{customdata[1]}<br>"
+        hovertemp = "%{customdata[0]}: <b>%{customdata[1]}</b><br>"
         hovertemp += "Ca nhiễm tích lũy: %{customdata[2]:,.0f}<br>"
         hovertemp += "Ca nhiễm bình quân/tuần: %{customdata[3]:,.0f}<br>"
     else:
