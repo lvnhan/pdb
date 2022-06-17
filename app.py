@@ -236,6 +236,10 @@ header = html.Div(children=[
         ])
     ], className="bg-primary bg-gradient p-3 mb-2")
 
+VNCoronaTitle = html.Div(children=[
+    html.H5("Thống kê nhanh dịch bệnh tại Việt nam", style={'font-family': fontnames['l']}),
+    html.Sup("Dữ liện chỉ mang tính chất minh họa", style={'font-family': fontnames['l']})
+    ])
 
 SubHeader = html.Div(children=[
             html.H5("Biểu đồ", style={'font-family': fontnames['l']})
@@ -390,6 +394,39 @@ crictrl = html.Div(className='div-user-controls',
                                             ], style={'font-size': fontsz['f12'],})
                          ], style={'font-family': fontnames['u']}
     )
+
+fembed = html.Div([dbc.Row([
+    dbc.Col(children=[html.Iframe(
+        src='https://flo.uri.sh/visualisation/10353232/embed',
+        title='Interactive or visual content',
+        className='flourish-embed-iframe',
+        style={'width':'100%','height': '500px',
+               'font-family': fontnames['u'],
+               'font-size': fontsz['f12'],
+               },
+        sandbox='allow-same-origin allow-forms allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation'
+        )],width=4, className="shadow-sm rounded"),
+    dbc.Col(children=[html.Iframe(
+        src='https://flo.uri.sh/visualisation/10362562/embed',
+        title='Interactive or visual content',
+        className='flourish-embed-iframe',
+        style={'width':'100%','height': '500px',
+               'font-family': fontnames['u'],
+               'font-size': fontsz['f12'],
+               },
+        sandbox='allow-same-origin allow-forms allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation'
+        )],width=4, className="shadow-sm rounded"),
+    dbc.Col(children=[html.Iframe(
+        src='https://flo.uri.sh/visualisation/10362926/embed',
+        title='Interactive or visual content',
+        className='flourish-embed-iframe',
+        style={'width':'100%','height': '500px',
+               'font-family': fontnames['u'],
+               'font-size': fontsz['f12'],
+               },
+        sandbox='allow-same-origin allow-forms allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation'
+        )],width=4, className="shadow-sm rounded"),
+    ])])
 #############################################
 ggraph = html.Div(dcc.Graph(id="ggraph"), className="m-4")
 cgraph = {
@@ -428,6 +465,20 @@ app.layout = dbc.Container(children=[
         dbc.Col([cgraph['line'], cgraph['map'], cgraph['scatter'],ggraph], width=8, className="shadow-sm rounded m-0"), 
         dbc.Col(width=1)
         ],className="m-1"
+        ),
+    dbc.Row(
+        [
+        dbc.Col(width=1),
+        dbc.Col([VNCoronaTitle], width=10),
+        dbc.Col(width=1)
+        ]
+        ),
+    dbc.Row(
+        [
+        dbc.Col(width=1),
+        dbc.Col([fembed], width=10),
+        dbc.Col(width=1)
+        ]
         ),
     dbc.Row(
         [
